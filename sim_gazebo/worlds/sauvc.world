@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <world name="sauvc">
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <model name="sauvc pool">
+      <include>
+        <uri>model://sauvc pool</uri>
+        <pose>0 0 -1.4 0 0 0</pose>
+      </include>
+    </model>
+
+    <model name="sea_surface">
+      <include>
+        <uri>model://sea_surface</uri>
+        <pose>0 0 0 0 0 0</pose>
+      </include>
+    </model>
+
+   <model name="auv">
+      <include>
+        <uri>model://auv</uri>
+	      <pose>0 0 -1 0 0 0</pose>
+      </include>
+<!--  <plugin name="freebuoyancy" filename="libfreebuoyancy.so">
+    <descriptionParam>robot_description</descriptionParam>
+    <fluidTopic>current</fluidTopic>
+    <alwaysOn>true</alwaysOn>
+    <surface>0 0 0</surface>
+    <updateRate>.001</updateRate>
+
+    <link name='hull'>
+      <buoyancy>
+        <compensation>1.01</compensation>
+        <origin xyz= "0 0 0"/>
+      </buoyancy>
+    </link>
+  </plugin>-->
+   <plugin name="buoyancy_fake" filename="libbuoyancy_fake.so"/>
+   <plugin name="auv_plugin" filename="libauv_plugin.so"/>
+   <!--<plugin name="data_publisher" filename="libdata_publisher.so"/>-->
+    </model>
+  </world>
+</sdf>
