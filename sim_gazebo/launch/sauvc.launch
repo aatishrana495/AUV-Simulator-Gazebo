@@ -3,7 +3,8 @@
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find sim_gazebo)/worlds/sauvc.world"/>
     <arg name="verbose" value="true" />
-    <arg name="paused" value="false" />
+    <arg name="paused" value="true" />
 
   </include>
+<!--<node name="data_publisher" pkg="sim_gazebo" type="data_publisher" required="true" />-->
 </launch>

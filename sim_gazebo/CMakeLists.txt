@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
+  gazebo_msgs
 )
 
 find_package(gazebo REQUIRED)
@@ -23,7 +24,9 @@ add_library(auv_plugin src/auv_plugin.cpp)
 target_link_libraries(auv_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 add_library(data_publisher src/data_publisher.cpp)
-target_link_libraries(data_publisher ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+add_dependencies(data_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(data_publisher ${catkin_LIBRARIES})
+
 
 add_message_files(
    FILES
