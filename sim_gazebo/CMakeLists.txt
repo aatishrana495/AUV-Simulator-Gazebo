@@ -17,8 +17,8 @@ find_package(gazebo REQUIRED)
 link_directories(${GAZEBO_LIBRARY_DIRS})
 include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${SDFormat_INCLUDE_DIRS})
 
-add_library(buoyancy_fake src/buoyancy_fake.cpp)
-target_link_libraries(buoyancy_fake ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+add_library(buoyancy_plugin src/buoyancy_plugin.cpp)
+target_link_libraries(buoyancy_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 add_library(auv_plugin src/auv_plugin.cpp)
 target_link_libraries(auv_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
