@@ -5,4 +5,6 @@
 
 A simulator used to test control algorithms written for an Autonomous Underwater Vehicle
 
-This simulator was developed as a part of my work in Team Tiburon, the autonomous underwater vehicle team of NIT Rourkela. It is developed using Gazebo9.
+This simulator was developed as a part of my work in Team Tiburon, the autonomous underwater vehicle team of NIT Rourkela. It is developed using Gazebo7.
+
+Move the contents of model_files.zip into ~/.gazebo/models/
