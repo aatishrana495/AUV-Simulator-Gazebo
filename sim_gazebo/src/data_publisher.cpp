@@ -2,6 +2,8 @@
 #include "geometry_msgs/Vector3Stamped.h"
 #include "geometry_msgs/PointStamped.h"
 #include "geometry_msgs/Pose.h"
+#include "geometry_msgs/Point.h"
+#include "geometry_msgs/Quaternion.h"
 #include "gazebo_msgs/ModelState.h"
 #include "gazebo_msgs/ModelStates.h"
 #include<sim_gazebo/Combined.h>
@@ -10,14 +12,31 @@
 using std::vector;
 using std::string;
 
-ros::Publisher rosPub;
+class DataPublisher
+{
+public:
+  DataPublisher(){
+    auvState_listener=nh.subscribe<gazebo_msgs::ModelStates>("/gazebo/model_states", 100, &DataPublisher::modelStatesCallback,this);
+    auvState_publisher=nh.advertise<sim_gazebo::Combined>("synchronizer/combined",100);
+  }
+  void modelStatesCallback(const gazebo_msgs::ModelStatesConstPtr &msg);
 
-void modelStatesCallback(const gazebo_msgs::ModelStates& msg){
-  sim_gazebo::Combined msg_pub;
+private:
+  ros::NodeHandle nh;
+  ros::Subscriber auvState_listener;
+  ros::Publisher auvState_publisher;
   int auv_index = -1;
-  for(int i = 0; i < msg.name.size(); i++)
+  std::vector<float> msg_sub;
+
+};
+
+void DataPublisher::modelStatesCallback(const gazebo_msgs::ModelStatesConstPtr &msg){
+
+  msg_sub.clear();
+
+  for(int i = 0; i < msg->name.size(); i++)
   {
-      if (msg.name[i] == "auv") auv_index = i;
+      if (msg->name[i] == "auv") auv_index = i;
   }
 
   if (auv_index == -1)
@@ -25,31 +44,29 @@ void modelStatesCallback(const gazebo_msgs::ModelStates& msg){
       ROS_ERROR_STREAM("Failed to locate auv model state.");
       return;
   }
-    msg_pub.angular[0]=msg.pose[auv_index].orientation.x;
-    msg_pub.angular[1]=msg.pose[auv_index].orientation.y;
-    msg_pub.angular[2]=msg.pose[auv_index].orientation.z;
-    msg_pub.linear[0]=msg.pose[auv_index].position.x;
-    msg_pub.linear[1]=msg.pose[auv_index].position.y;
-    msg_pub.linear[2]=msg.pose[auv_index].position.z;
-    msg_pub.depth=msg.pose[auv_index].position.z;
-    rosPub.publish(msg_pub);
 
+  msg_sub.push_back(msg->pose[auv_index].position.x);
+  msg_sub.push_back(msg->pose[auv_index].position.y);
+  msg_sub.push_back(msg->pose[auv_index].position.z);
+  msg_sub.push_back(msg->pose[auv_index].orientation.x);
+  msg_sub.push_back(msg->pose[auv_index].orientation.y);
+  msg_sub.push_back(msg->pose[auv_index].orientation.z);
+
+  sim_gazebo::Combined new_msg;
+  new_msg.linear = {msg_sub.at(0),msg_sub.at(1),msg_sub.at(2)};
+  new_msg.angular={msg_sub.at(3),msg_sub.at(4),msg_sub.at(5)};
+  new_msg.depth=msg_sub.at(2);
+  auvState_publisher.publish(new_msg);
+//  std::cout<<new_msg<<"\n";
 }
 
-int main(int argc, char **argv)
-{
-    ros::init(argc, argv, "data_publisher");
-    ros::NodeHandle nh;
-    ros::Subscriber auv_orient = nh.subscribe("gazebo/model_states", 1, modelStatesCallback);
-    rosPub=nh.advertise<sim_gazebo::Combined>("synchronizer/combined",1);
-    double rate=30;
-    ros::Rate r(rate);
-    
-    while(ros::ok())
-    {
-        ros::spinOnce();
-        r.sleep();
-    }
-
-    return 0;
+int main(int argc, char** argv){
+  ros::init(argc, argv, "data_publisher");
+  DataPublisher dataPublisher;
+  ros::Rate r(10);
+  while(ros::ok()){
+    r.sleep();
+    ros::spinOnce();
+  }
+  return 0;
 }
