@@ -32,7 +32,6 @@ add_executable(data_publisher src/data_publisher.cpp)
 target_link_libraries(data_publisher ${catkin_LIBRARIES})
 add_dependencies(data_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-
 link_directories(${GAZEBO_LIBRARY_DIRS})
 include_directories(include ${Boost_INCLUDE_DIR} ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${SDFormat_INCLUDE_DIRS})
 

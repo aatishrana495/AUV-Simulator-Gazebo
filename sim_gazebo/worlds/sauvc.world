@@ -28,5 +28,13 @@
    <plugin name="buoyancy_plugin" filename="libbuoyancy_plugin.so"/>
    <plugin name="auv_plugin" filename="libauv_plugin.so"/>
     </model>
+
+    <model name="starting_zone">
+      <include>
+        <uri>model://starting_zone</uri>
+        <pose>0 0 0 0 0 0</pose>
+      </include>
+    </model>
+
   </world>
 </sdf>
