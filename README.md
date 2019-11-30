@@ -12,6 +12,6 @@ Move the contents of model_files.zip into ~/.gazebo/models/
 STEPS:
 
 - roscore
-- roslaunch sim_gazebo sauvc.roslaunch
+- roslaunch sim_gazebo sauvc.launch
 - rosrun sim_gazebo data_publisher
 - rosrun simgazebo_image_recieve simgazebo_image_recieve
