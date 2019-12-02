@@ -25,9 +25,16 @@
 	      <pose>0 0 -1 0 0 0</pose>
       </include>
 
-   <plugin name="buoyancy_fake" filename="libbuoyancy_fake.so"/>
+   <plugin name="buoyancy_plugin" filename="libbuoyancy_plugin.so"/>
    <plugin name="auv_plugin" filename="libauv_plugin.so"/>
-<!--<plugin name="data_publisher" filename="libdata_publisher.so"/>-->
     </model>
+
+    <model name="starting_zone">
+      <include>
+        <uri>model://starting_zone</uri>
+        <pose>0 0 0 0 0 0</pose>
+      </include>
+    </model>
+
   </world>
 </sdf>

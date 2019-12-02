@@ -1,3 +1,6 @@
+/*
+reference: https://forum.unity.com/threads/floating-a-object-on-water.31671/
+*/
 #ifndef _BUOYANCY_ORIGINAL_H
 #define _BUOYANCY_ORIGINAL_H
 
