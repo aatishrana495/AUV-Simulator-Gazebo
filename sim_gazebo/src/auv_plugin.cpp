@@ -35,10 +35,11 @@ namespace gazebo
 
     /// \brief Pointer to the model.
     private: physics::ModelPtr model;
+    protected: physics::LinkPtr hull;
     private: physics::LinkPtr thrusters[6];
     private: std::string path="auv::auv::thruster_";
     private: std::string k;
-
+  protected: double initial,finalForce,adjusted,hullPose;
     public: void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     {
       //output message:
@@ -53,7 +54,11 @@ namespace gazebo
       }
 
       this->model = _model;
-
+      this->hull = _model->GetChildLink("auv::auv::hull");
+      this->initial=0.0;
+      this->finalForce=0.0;
+      this->adjusted=0.0;
+      this->hullPose=0.0;
       for(int i=0;i<6;i++){
         k=std::to_string(i+1);
         this->thrusters[i]=_model->GetChildLink(path+k);
@@ -71,15 +76,16 @@ namespace gazebo
 
     public: void OnRosMsg(const sim_gazebo::ThrusterSpeeds::ConstPtr &_msg)
     {
+      hullPose=this->hull->GetWorldCoGPose().pos[2];
+      if(hullPose<0.0){
       std::cerr << "\nThe force value is [" <<_msg->data[0]<< "]\n";
-      this->thrusters[0]->AddRelativeForce(ignition::math::Vector3d(0, 0, -_msg->data[0]));
-      this->thrusters[1]->AddRelativeForce(ignition::math::Vector3d(0, 0, -_msg->data[1]));
-      this->thrusters[2]->AddRelativeForce(ignition::math::Vector3d(0, 0, -_msg->data[2]));
-      this->thrusters[3]->AddRelativeForce(ignition::math::Vector3d(-_msg->data[3], 0, 0));
-      this->thrusters[4]->AddRelativeForce(ignition::math::Vector3d(-_msg->data[4], 0, 0));
-      this->thrusters[5]->AddRelativeForce(ignition::math::Vector3d(0, -_msg->data[5], 0));
-
-      //this->SetForce(_msg->data);
+      this->thrusters[0]->AddRelativeForce(ignition::math::Vector3d(0, 0, -AdjustForce(_msg->data[0])));
+      this->thrusters[1]->AddRelativeForce(ignition::math::Vector3d(0, 0, -AdjustForce(_msg->data[1])));
+      this->thrusters[2]->AddRelativeForce(ignition::math::Vector3d(0, 0, AdjustForce(-_msg->data[2])));
+      this->thrusters[3]->AddRelativeForce(ignition::math::Vector3d(-AdjustForce(_msg->data[3]), 0, 0));
+      this->thrusters[4]->AddRelativeForce(ignition::math::Vector3d(-AdjustForce(_msg->data[4]), 0, 0));
+      this->thrusters[5]->AddRelativeForce(ignition::math::Vector3d(0, -AdjustForce(_msg->data[5]), 0));
+    }
     }
 
     /// \brief ROS helper function that processes messages
@@ -92,16 +98,33 @@ namespace gazebo
       }
     }
 
-  /*public: void SetForce(const double &f)
+  public: double AdjustForce(double initial)
     {
+      if (initial >= 1470 && initial <= 1530) {
+        adjusted = 0.0f;
+      //			Debug.Log ("Adjusted = " + adjusted + " for thruster " + thrusterNumber);
+      }
+      else if (initial > 1530) {
+        initial = initial- 1530;
+        adjusted =(initial / 370.0f) * 2.36f;
+      } else {
+        initial -= 1470;
+        adjusted = initial / 370.0f * 1.85f;
+      }
+      adjusted *= 9.8f * 1000.0f;
+      //		Debug.Log ("Adjusted before return = " + adjusted + " for thruster " + thrusterNumber);
+      return adjusted;
+    }
 
-      this->thrusters[0]->AddRelativeForce(ignition::math::Vector3d(f, 0, 0));
-      this->thrusters[1]->AddRelativeForce(ignition::math::Vector3d(f, 0, 0));
-      this->thrusters[2]->AddRelativeForce(ignition::math::Vector3d(f, 0, 0));
-      this->thrusters[3]->AddRelativeForce(ignition::math::Vector3d(f, 0, 0));
-      this->thrusters[4]->AddRelativeForce(ignition::math::Vector3d(f, 0, 0));
-      this->thrusters[5]->AddRelativeForce(ignition::math::Vector3d(f, 0, 0));
-    }*/
+  public: double AddForce(double f){
+    if(hullPose<0.0f){
+    finalForce=AdjustForce(f);
+  }else{
+    finalForce=0.0;
+  }
+  return finalForce;
+  }
+
   };
   GZ_REGISTER_MODEL_PLUGIN(AuvPlugin)
 }

@@ -29,7 +29,7 @@ namespace gazebo{
 
     /// \brief Pointer to the plugin SDF.
     protected: sdf::ElementPtr sdf;
-    protected: float waterLevel, floatHeight,bounceDamp,forcefactor,vel;
+    protected: float waterLevel, floatHeight,bounceDamp,forcefactor,vel,i;
     protected: math::Vector3 actionPoint,buoyancyCentreOffset;
 
     public: void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
@@ -44,7 +44,8 @@ namespace gazebo{
       this->sdf = _sdf;
 
       this->hull = _model->GetChildLink("auv::auv::hull");
-
+      //auto start = high_resolution_clock::now();
+    this->i=0.0;
       updateConnection = event::Events::ConnectWorldUpdateBegin(
           boost::bind(&BuoyancyOriginal::OnUpdate, this));
 
@@ -56,7 +57,7 @@ namespace gazebo{
 
     public: void OnUpdate() {
       actionPoint=this->hull->GetWorldCoGPose().pos;
-      //std::cout<<actionPoint<<std::endl;
+      //std::cout<<actionPoint[2]<<std::endl;
       forcefactor=1.0-((actionPoint.z-waterLevel)/floatHeight);
       vel=fabs(this->hull->GetRelativeLinearVel().z);
       bounceDamp=vel*2.5;
@@ -64,7 +65,8 @@ namespace gazebo{
       if (forcefactor>0.0){
         this->hull->AddForce(math::Vector3(0,0,13*9.8*(forcefactor-(vel*bounceDamp))));
         //std::cout<<13*9.8*forcefactor-(vel*bounceDamp)<<std::endl;
-
+      }else{
+        this->hull->AddForce(math::Vector3(0,0,0));
       }
     }
 
